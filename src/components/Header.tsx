@@ -1,167 +1,122 @@
 import React from 'react';
-import { Play, Pause, RotateCcw, Orbit, ArrowDownCircle, Compass, Scale, Info, Sparkles } from 'lucide-react';
-import { SimulationMode } from '../types';
+import { PresetMode, Language, AppTheme } from '../types';
+import { t } from '../utils/i18n';
+import { 
+  Orbit, 
+  Globe, 
+  BookOpen, 
+  GraduationCap, 
+  ArrowDownCircle, 
+  Compass, 
+  Layers, 
+  Scale
+} from 'lucide-react';
 
 interface HeaderProps {
-  mode: SimulationMode;
-  setMode: (mode: SimulationMode) => void;
-  isRunning: boolean;
-  setIsRunning: (running: boolean | ((prev: boolean) => boolean)) => void;
+  language: Language;
+  onToggleLanguage: () => void;
+  preset: PresetMode;
+  onSelectPreset: (p: PresetMode) => void;
+  theme?: AppTheme;
+  onOpenTheory: () => void;
   onReset: () => void;
-  speed: number;
-  setSpeed: (speed: number) => void;
-  showMath: boolean;
-  setShowMath: (show: boolean | ((prev: boolean) => boolean)) => void;
-  lang: 'en' | 'bn';
-  setLang: (lang: 'en' | 'bn') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  mode,
-  setMode,
-  isRunning,
-  setIsRunning,
-  onReset,
-  speed,
-  setSpeed,
-  showMath,
-  setShowMath,
-  lang,
-  setLang,
+  language,
+  onToggleLanguage,
+  preset,
+  onSelectPreset,
+  onOpenTheory,
 }) => {
-  const modes = [
-    {
-      id: 'falling_bodies' as SimulationMode,
-      labelEn: 'Falling Bodies (Galileo)',
-      labelBn: 'পড়ন্ত বস্তু (গ্যালিলিও)',
-      icon: ArrowDownCircle,
-    },
-    {
-      id: 'kepler_orbits' as SimulationMode,
-      labelEn: "Kepler's Planetary Laws",
-      labelBn: 'কেপলারের গ্রহীয় গতি',
-      icon: Orbit,
-    },
-    {
-      id: 'gravitation_vector' as SimulationMode,
-      labelEn: 'Gravitation Vector Law',
-      labelBn: 'মহাকর্ষ বল ও ভেক্টর রূপ',
-      icon: Compass,
-    },
-    {
-      id: 'inertial_mass' as SimulationMode,
-      labelEn: 'Inertial vs Grav. Mass',
-      labelBn: 'জড় ভর বনাম মহাকর্ষীয় ভর',
-      icon: Scale,
-    },
+  const tabs: { id: PresetMode; label: string; icon: React.ReactNode }[] = [
+    { id: 'falling_bodies', label: t(language, 'tabFalling'), icon: <ArrowDownCircle className="w-3.5 h-3.5" /> },
+    { id: 'kepler_laws', label: t(language, 'tabKepler12'), icon: <Orbit className="w-3.5 h-3.5" /> },
+    { id: 'kepler_harmonic', label: t(language, 'tabKepler3'), icon: <Compass className="w-3.5 h-3.5" /> },
+    { id: 'vector_gravitation', label: t(language, 'tabVectorGrav'), icon: <Layers className="w-3.5 h-3.5" /> },
+    { id: 'equivalence', label: t(language, 'tabEquivalence'), icon: <Scale className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <header className="bg-slate-900/90 border-b border-cyan-500/20 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-        {/* Title */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/25">
-            <Orbit className="w-6 h-6 text-white animate-spin-slow" />
+    <header className="w-full bg-white border-b border-slate-300 sticky top-0 z-40 shadow-xs">
+      <div className="max-w-[1780px] mx-auto px-3 sm:px-4 py-2.5 flex flex-col xl:flex-row items-center justify-between gap-3">
+        {/* Left: Brand Identity */}
+        <div className="flex items-center gap-2.5 self-start xl:self-auto">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-sky-500/25 shrink-0">
+            <Orbit className="w-5 h-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 text-xs font-bold font-mono bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30">
-                P-37
-              </span>
-              <h1 className="text-lg font-bold text-white tracking-wide">
-                {lang === 'bn' ? 'পড়ন্ত বস্তু ও মহাকর্ষীয় বলবিদ্যা' : 'Falling Bodies & Gravitational Mechanics'}
-              </h1>
-            </div>
-            <p className="text-xs text-slate-400 font-mono">
-              {lang === 'bn' 
-                ? 'গ্যালিলিওর সূত্রাবলী • কেপলারের ৩টি সূত্র • ভেক্টর মহাকর্ষ বল • সমতুল্যতা নীতি' 
-                : "Galileo's Laws • Kepler's 3 Planetary Laws • Vector Gravitation • Equivalence Principle"}
-            </p>
+          <div className="flex flex-col justify-center leading-none">
+            {language === 'bn' ? (
+              <>
+                <span className="text-[15px] font-black text-slate-950 tracking-tight leading-tight">
+                  {t(language, 'brandTitle')}
+                </span>
+                <span className="text-[12px] font-black text-sky-700 tracking-wider uppercase leading-tight">
+                  {t(language, 'brandSubtitle')}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[15px] font-black text-slate-950 tracking-tight leading-tight">
+                  {t(language, 'brandTitle')}
+                </span>
+                <span className="text-[12px] font-black text-sky-700 tracking-wider uppercase leading-tight">
+                  {t(language, 'brandSubtitle')}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Mode Selector */}
-        <div className="flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800 gap-1 overflow-x-auto max-w-full">
-          {modes.map((m) => {
-            const Icon = m.icon;
-            const active = mode === m.id;
+        {/* Center: Module Tabs */}
+        <nav className="flex items-center gap-1.5 p-1 bg-slate-200/90 rounded-2xl border border-slate-300 overflow-x-auto max-w-full">
+          {tabs.map((tab) => {
+            const isActive = preset === tab.id;
             return (
               <button
-                key={m.id}
-                onClick={() => setMode(m.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
-                  active
-                    ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/30'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                key={tab.id}
+                onClick={() => onSelectPreset(tab.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs transition-all whitespace-nowrap ${
+                  isActive
+                    ? 'bg-sky-600 text-white font-black shadow-sm shadow-sky-600/30 border border-sky-500'
+                    : 'bg-white/80 hover:bg-white text-slate-800 hover:text-slate-950 font-extrabold border border-slate-300/80 shadow-2xs'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{lang === 'bn' ? m.labelBn : m.labelEn}</span>
+                {tab.icon}
+                <span>{tab.label}</span>
               </button>
             );
           })}
-        </div>
+        </nav>
 
-        {/* Global Controls & Language Switch */}
-        <div className="flex items-center gap-2">
-          {/* Play/Pause */}
+        {/* Right: Language Toggle, Theory Button & Udvash Badge */}
+        <div className="flex items-center gap-2 self-end xl:self-auto shrink-0">
           <button
-            onClick={() => setIsRunning((p) => !p)}
-            className={`p-2 rounded-lg text-white font-medium flex items-center gap-1 transition-all ${
-              isRunning
-                ? 'bg-amber-500 hover:bg-amber-600 shadow-md shadow-amber-500/20'
-                : 'bg-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20'
-            }`}
-            title={isRunning ? 'Pause' : 'Start'}
+            onClick={onToggleLanguage}
+            className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-100 rounded-xl text-xs font-black text-slate-900 border border-slate-300 shadow-2xs transition-colors"
+            title="Toggle Language (English / বাংলা)"
           >
-            {isRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+            <Globe className="w-3.5 h-3.5 text-slate-700" />
+            <span>{language === 'bn' ? 'BN' : 'EN'}</span>
           </button>
 
-          {/* Reset */}
           <button
-            onClick={onReset}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
-            title="Reset Simulation"
+            onClick={onOpenTheory}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 rounded-xl text-xs font-black border border-indigo-300 transition-all shadow-2xs"
           >
-            <RotateCcw className="w-4 h-4" />
+            <BookOpen className="w-3.5 h-3.5 text-indigo-700" />
+            <span>{t(language, 'theoryButton')}</span>
           </button>
 
-          {/* Speed Selector */}
-          <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5 text-xs">
-            {[0.5, 1, 2].map((s) => (
-              <button
-                key={s}
-                onClick={() => setSpeed(s)}
-                className={`px-2 py-1 rounded font-mono ${
-                  speed === s ? 'bg-slate-800 text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {s}x
-              </button>
-            ))}
+          {/* Udvash Branding Badge */}
+          <div 
+            id="udvash-top-badge"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-50 to-orange-50 hover:from-red-100 hover:to-orange-100 rounded-xl border border-red-200/90 text-red-700 text-xs font-black tracking-wide shadow-2xs transition-all"
+            title="Udvash Academic & Admission Care"
+          >
+            <GraduationCap className="w-3.5 h-3.5 text-red-600 shrink-0" />
+            <span className="font-extrabold text-[13px]">{t(language, 'udvashBadge')}</span>
           </div>
-
-          {/* Math Derivations Toggle */}
-          <button
-            onClick={() => setShowMath((p) => !p)}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-              showMath
-                ? 'bg-purple-600/30 text-purple-300 border-purple-500/50 shadow-sm shadow-purple-500/30'
-                : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:border-slate-600'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-            <span>{lang === 'bn' ? 'গাণিতিক প্রমাণ' : 'Math & Theory'}</span>
-          </button>
-
-          {/* Language Toggle */}
-          <button
-            onClick={() => setLang(lang === 'en' ? 'bn' : 'en')}
-            className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-amber-400"
-          >
-            {lang === 'en' ? 'বাংলা' : 'EN'}
-          </button>
         </div>
       </div>
     </header>
