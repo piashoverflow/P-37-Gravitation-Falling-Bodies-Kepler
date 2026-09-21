@@ -1,5 +1,7 @@
 # P-37: Falling Bodies, Kepler's Laws & Universal Gravitation Lab
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black.svg?logo=vercel)](https://p-37-gravitation-falling-bodies-kep.vercel.app)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6.svg?logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg?logo=react)](https://react.dev/)
@@ -9,6 +11,7 @@
 [![BUET ME](https://img.shields.io/badge/Institution-BUET%20'25-10b981.svg)](https://buet.ac.bd)
 
 > **Interactive Computational Physics Simulator & Pedagogical Workbench**  
+> 🌐 **Live URL**: [p-37-gravitation-falling-bodies-kep.vercel.app](https://p-37-gravitation-falling-bodies-kep.vercel.app)  
 > Developed by **Shamsuddin Piash** | Department of Mechanical Engineering, Bangladesh University of Engineering and Technology (BUET).  
 > Covers **HSC Physics 1st Paper, Chapter 6 (Gravitation & Gravity / মহাকর্ষ ও অভিকর্ষ)** — Topic Code **P-37**.
 
