@@ -1,0 +1,6 @@
+{
+  "name": "P-37: Falling Bodies, Kepler's Laws & Universal Gravitation",
+  "description": "Interactive physics simulation of Galileo's falling bodies, Kepler's 3 planetary laws, vector universal gravitation, and Einstein's equivalence principle.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
