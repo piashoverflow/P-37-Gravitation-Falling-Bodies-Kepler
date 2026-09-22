@@ -390,62 +390,96 @@ export const MotionCanvas: React.FC<MotionCanvasProps> = ({
     else if (params.preset === 'vector_gravitation') {
       const centerY = height * 0.5;
       const sepPixels = Math.min(width * 0.6, (params.distR / 30) * (width * 0.5) + 120);
-      const m1X = width * 0.5 - sepPixels / 2;
-      const m2X = width * 0.5 + sepPixels / 2;
+
+      // Barycenter (Center of Mass of 2-body system)
+      const totalM = params.m1 + params.m2;
+      const baryX = width * 0.5;
+      const r1Dist = (params.m2 / totalM) * sepPixels;
+      const r2Dist = (params.m1 / totalM) * sepPixels;
+
+      // When playing, the masses revolve around the barycenter
+      const orbAng = isPlaying ? telemetry.elapsedTime * 0.8 : 0;
+      const m1X = baryX - r1Dist * Math.cos(orbAng);
+      const m1Y = centerY - r1Dist * Math.sin(orbAng) * 0.4;
+      const m2X = baryX + r2Dist * Math.cos(orbAng);
+      const m2Y = centerY + r2Dist * Math.sin(orbAng) * 0.4;
 
       // Radius scale based on mass
       const r1 = Math.max(16, Math.min(38, Math.cbrt(params.m1) * 12));
       const r2 = Math.max(12, Math.min(32, Math.cbrt(params.m2) * 12));
 
-      // Connecting line with distance label
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.setLineDash([4, 4]);
+      // Mutual Orbit Track
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.setLineDash([3, 3]);
       ctx.beginPath();
-      ctx.moveTo(m1X, centerY);
-      ctx.lineTo(m2X, centerY);
+      ctx.ellipse(baryX, centerY, r1Dist, r1Dist * 0.4, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(baryX, centerY, r2Dist, r2Dist * 0.4, 0, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
+
+      // Barycenter Cross
+      ctx.strokeStyle = '#eab308';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(baryX - 6, centerY);
+      ctx.lineTo(baryX + 6, centerY);
+      ctx.moveTo(baryX, centerY - 6);
+      ctx.lineTo(baryX, centerY + 6);
+      ctx.stroke();
+      ctx.fillStyle = '#eab308';
+      ctx.font = '10px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('Barycenter', baryX, centerY - 10);
+
+      // Connecting line
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(m1X, m1Y);
+      ctx.lineTo(m2X, m2Y);
+      ctx.stroke();
 
       // Distance tag
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 12px JetBrains Mono';
-      ctx.textAlign = 'center';
-      ctx.fillText(`r = ${params.distR} × 10⁶ m`, width * 0.5, centerY - 18);
+      ctx.fillText(`r = ${params.distR} × 10⁶ m`, baryX, centerY + 25);
 
-      // Mass 1 (Planet 1)
+      // Mass 1
       ctx.fillStyle = '#3b82f6';
       ctx.beginPath();
-      ctx.arc(m1X, centerY, r1, 0, Math.PI * 2);
+      ctx.arc(m1X, m1Y, r1, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#93c5fd';
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 11px JetBrains Mono';
-      ctx.fillText(`m₁ = ${params.m1} × 10²⁴ kg`, m1X, centerY + r1 + 18);
+      ctx.fillText(`m₁ = ${params.m1} × 10²⁴ kg`, m1X, m1Y + r1 + 16);
 
-      // Mass 2 (Planet 2)
+      // Mass 2
       ctx.fillStyle = '#f97316';
       ctx.beginPath();
-      ctx.arc(m2X, centerY, r2, 0, Math.PI * 2);
+      ctx.arc(m2X, m2Y, r2, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = '#fdba74';
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(`m₂ = ${params.m2} × 10²⁴ kg`, m2X, centerY + r2 + 18);
+      ctx.fillText(`m₂ = ${params.m2} × 10²⁴ kg`, m2X, m2Y + r2 + 16);
 
-      // Force Vector 1 -> 2 (F12 points to m2)
-      const forceArrowLen = Math.min(70, Math.max(25, (telemetry.forceMagnitude / 1e20) * 10 + 25));
-      drawVectorArrow(ctx, m1X + r1, centerY, m1X + r1 + forceArrowLen, centerY, '#22c55e', 'F⃗₁₂', 8);
+      // Force Vectors
+      const dx = m2X - m1X;
+      const dy = m2Y - m1Y;
+      const angle = Math.atan2(dy, dx);
+      const forceArrowLen = Math.min(65, Math.max(25, (telemetry.forceMagnitude / 1e20) * 10 + 25));
 
-      // Force Vector 2 -> 1 (F21 points to m1, equal & opposite)
-      drawVectorArrow(ctx, m2X - r2, centerY, m2X - r2 - forceArrowLen, centerY, '#22c55e', 'F⃗₂₁', 8);
+      drawVectorArrow(ctx, m1X, m1Y, m1X + Math.cos(angle) * (r1 + forceArrowLen), m1Y + Math.sin(angle) * (r1 + forceArrowLen), '#22c55e', 'F⃗₁₂', 7);
+      drawVectorArrow(ctx, m2X, m2Y, m2X - Math.cos(angle) * (r2 + forceArrowLen), m2Y - Math.sin(angle) * (r2 + forceArrowLen), '#22c55e', 'F⃗₂₁', 7);
 
-      // Newton's 3rd Law label
       ctx.fillStyle = '#fef08a';
       ctx.font = 'bold 12px Plus Jakarta Sans';
-      ctx.fillText('F⃗₁₂ = - F⃗₂₁  (নিউটনের ৩য় সূত্র: ক্রিয়া-প্রতিক্রিয়া জোড়)', width * 0.5, centerY + 65);
+      ctx.fillText('F⃗₁₂ = - F⃗₂₁  (নিউটনের ৩য় সূত্র: সমমানের ও বিপরীতমুখী মহাকর্ষ বল)', width * 0.5, height - 30);
     }
 
     // ==========================================
@@ -455,7 +489,37 @@ export const MotionCanvas: React.FC<MotionCanvasProps> = ({
       const boxW = 180;
       const boxH = 240;
       const boxX = width * 0.5 - boxW / 2;
-      const boxY = height * 0.5 - boxH / 2;
+
+      // Elevator vertical position with motion
+      let boxY = height * 0.5 - boxH / 2;
+      if (isPlaying) {
+        if (params.elevatorState === 'freefall_cable_cut') {
+          const dropPeriod = 3.5;
+          const dropProg = (telemetry.elapsedTime % dropPeriod) / dropPeriod;
+          boxY += Math.pow(dropProg, 2) * 70;
+        } else if (params.elevatorState === 'accelerating_rocket') {
+          const risePeriod = 3.5;
+          const riseProg = (telemetry.elapsedTime % risePeriod) / risePeriod;
+          boxY -= Math.pow(riseProg, 2) * 50;
+        }
+      }
+
+      // Rocket flame underneath if accelerating
+      if (params.elevatorState === 'accelerating_rocket') {
+        const plumeH = isPlaying ? 24 + Math.random() * 12 : 18;
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.moveTo(boxX + 30, boxY + boxH);
+        ctx.lineTo(boxX + 50, boxY + boxH + plumeH);
+        ctx.lineTo(boxX + 70, boxY + boxH);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(boxX + boxW - 70, boxY + boxH);
+        ctx.lineTo(boxX + boxW - 50, boxY + boxH + plumeH);
+        ctx.lineTo(boxX + boxW - 30, boxY + boxH);
+        ctx.fill();
+      }
 
       // Elevator Box
       ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';

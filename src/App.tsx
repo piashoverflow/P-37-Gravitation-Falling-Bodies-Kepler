@@ -159,7 +159,6 @@ export default function App() {
         }
 
         const isLanded = newCoinY >= params.dropHeight && newFeatherY >= params.dropHeight;
-        if (isLanded) setIsPlaying(false);
 
         return {
           ...prev,
@@ -290,8 +289,8 @@ export default function App() {
           telemetry={telemetry}
           isPlaying={isPlaying}
           onTogglePlay={() => {
-            if (telemetry.isLanded) {
-              handleReset();
+            if (telemetry.isLanded || telemetry.coinY >= params.dropHeight) {
+              setTelemetry(computeInitialTelemetry(params));
               setIsPlaying(true);
             } else {
               setIsPlaying((prev) => !prev);
